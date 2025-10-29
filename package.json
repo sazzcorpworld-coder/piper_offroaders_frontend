@@ -1,0 +1,28 @@
+{
+  "name": "piper-offroaders-club",
+  "version": "1.0.0",
+  "description": "Full-stack web application for Piper Offroaders Club",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "install-all": "cd backend && npm install",
+    "test": "echo \"Tests not implemented yet\" && exit 1"
+  },
+  "keywords": [
+    "off-road",
+    "driving",
+    "club",
+    "community",
+    "full-stack",
+    "nodejs",
+    "mongodb",
+    "jwt"
+  ],
+  "author": "Piper Offroaders Club",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/piper-offroaders-club/piper-offroaders-club"
+  }
+}
