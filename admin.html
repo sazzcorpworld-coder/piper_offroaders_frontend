@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Piper Offroaders Club</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .font-bebas { font-family: 'Bebas Neue', cursive; }
+        .bg-desert { background: linear-gradient(135deg, #d4a574 0%, #c19660 50%, #b8860b 100%); }
+        .text-desert { color: #8b6914; }
+        .border-desert { border-color: #d4a574; }
+        .card-hover:hover { transform: translateY(-2px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-mountain text-2xl text-desert mr-2"></i>
+                        <span class="font-bebas text-2xl text-gray-800">PIPER OFFROADERS</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+                    </a>
+                    <a href="drives.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-route mr-1"></i> Drives
+                    </a>
+                    <a href="marketplace.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-store mr-1"></i> Marketplace
+                    </a>
+                    <a href="forum.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-comments mr-1"></i> Forum
+                    </a>
+                    <div id="userMenu" class="flex items-center space-x-2">
+                        <a href="profile.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-user mr-1"></i> Profile
+                        </a>
+                        <a href="voting.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-vote-yea mr-1"></i> Voting
+                        </a>
+                        <a href="admin.html" class="text-desert px-3 py-2 rounded-md text-sm font-medium bg-desert bg-opacity-10">
+                            <i class="fas fa-cog mr-1"></i> Admin
+                        </a>
+                        <button onclick="logout()" class="bg-desert text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90">
+                            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-cog text-desert mr-3"></i>
+                    Admin Panel
+                </h1>
+                <p class="text-gray-600">Manage users, content, and system settings</p>
+                <div class="mt-4 flex items-center space-x-4">
+                    <div class="text-sm text-gray-500">Your role:</div>
+                    <span class="inline-block bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>Admin
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <div class="text-2xl font-bold text-gray-800" id="totalUsers">0</div>
+                        <div class="text-gray-600 text-sm">Total Users</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-route text-green-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <div class="text-2xl font-bold text-gray-800" id="totalDrives">0</div>
+                        <div class="text-gray-600 text-sm">Total Drives</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                <div class="flex items-center">
+                    <div class="bg-yellow-100 p-3 rounded-full">
+                        <i class="fas fa-store text-yellow-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <div class="text-2xl font-bold text-gray-800" id="totalMarketItems">0</div>
+                        <div class="text-gray-600 text-sm">Market Items</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 card-hover">
+                <div class="flex items-center">
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <i class="fas fa-comments text-purple-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <div class="text-2xl font-bold text-gray-800" id="totalForumPosts">0</div>
+                        <div class="text-gray-600 text-sm">Forum Posts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="mb-6">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6">
+                        <button onclick="showTab('users')" id="usersTab" class="py-4 px-1 border-b-2 border-desert text-desert font-medium text-sm">
+                            <i class="fas fa-users mr-2"></i>Users
+                        </button>
+                        <button onclick="showTab('drives')" id="drivesTab" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                            <i class="fas fa-route mr-2"></i>Drives
+                        </button>
+                        <button onclick="showTab('votes')" id="votesTab" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                            <i class="fas fa-vote-yea mr-2"></i>Voting History
+                        </button>
+                        <button onclick="showTab('content')" id="contentTab" class="py-4 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 font-medium text-sm">
+                            <i class="fas fa-file-alt mr-2"></i>Content
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="usersTabContent" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800">User Management</h2>
+                </div>
+                <div class="p-6">
+                    <div id="usersList">
+                        <!-- Users will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drives Tab -->
+        <div id="drivesTabContent" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800">Drive Management</h2>
+                </div>
+                <div class="p-6">
+                    <div id="drivesList">
+                        <!-- Drives will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Votes Tab -->
+        <div id="votesTabContent" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800">Voting History</h2>
+                </div>
+                <div class="p-6">
+                    <div id="votesList">
+                        <!-- Votes will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Tab -->
+        <div id="contentTabContent" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800">Content Moderation</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Forum Posts</h3>
+                            <div id="forumPostsList">
+                                <!-- Forum posts will be loaded here -->
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Marketplace Items</h3>
+                            <div id="marketItemsList">
+                                <!-- Marketplace items will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let dashboardStats = {};
+        let allUsers = [];
+        let allDrives = [];
+        let allVotes = [];
+        let allForumPosts = [];
+        let allMarketItems = [];
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadAdminData();
+        });
+
+        async function loadAdminData() {
+            try {
+                const token = localStorage.getItem('token');
+                
+                // Load dashboard stats
+                const statsResponse = await axios.get('http://localhost:5000/api/admin/dashboard', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                dashboardStats = statsResponse.data;
+
+                // Load users
+                const usersResponse = await axios.get('http://localhost:5000/api/admin/users', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                allUsers = usersResponse.data;
+
+                // Load other data
+                const [drivesResponse, votesResponse, forumResponse, marketResponse] = await Promise.all([
+                    axios.get('http://localhost:5000/api/drives', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5000/api/admin/votes/history', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5000/api/forum', { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get('http://localhost:5000/api/marketplace', { headers: { Authorization: `Bearer ${token}` } })
+                ]);
+
+                allDrives = drivesResponse.data;
+                allVotes = votesResponse.data;
+                allForumPosts = forumResponse.data;
+                allMarketItems = marketResponse.data;
+
+                renderDashboardStats();
+                renderUsers();
+                renderDrives();
+                renderVotes();
+                renderContent();
+
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+                if (error.response?.status === 403) {
+                    alert('Access denied. Admin privileges required.');
+                    window.location.href = 'dashboard.html';
+                }
+            }
+        }
+
+        function renderDashboardStats() {
+            document.getElementById('totalUsers').textContent = dashboardStats.totalUsers || 0;
+            document.getElementById('totalDrives').textContent = dashboardStats.totalDrives || 0;
+            document.getElementById('totalMarketItems').textContent = dashboardStats.totalMarketplaceItems || 0;
+            document.getElementById('totalForumPosts').textContent = dashboardStats.totalForumPosts || 0;
+        }
+
+        function renderUsers() {
+            const container = document.getElementById('usersList');
+
+            container.innerHTML = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drives</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            ${allUsers.map(user => `
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">${user.name}</div>
+                                        <div class="text-sm text-gray-500">${user.email}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        ${user.phone || 'N/A'}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <select onchange="updateUserRole('${user._id}', this.value)" class="text-sm border border-gray-300 rounded px-2 py-1">
+                                            <option value="newbie" ${user.role === 'newbie' ? 'selected' : ''}>Newbie</option>
+                                            <option value="intermediate" ${user.role === 'intermediate' ? 'selected' : ''}>Intermediate</option>
+                                            <option value="advanced" ${user.role === 'advanced' ? 'selected' : ''}>Advanced</option>
+                                            <option value="marshal" ${user.role === 'marshal' ? 'selected' : ''}>Marshal</option>
+                                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                                        </select>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isBanned ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+                                            ${user.isBanned ? 'Banned' : 'Active'}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        ${user.drivesCompleted}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button onclick="toggleUserBan('${user._id}', ${user.isBanned})" class="text-${user.isBanned ? 'green' : 'red'}-600 hover:text-${user.isBanned ? 'green' : 'red'}-900 mr-2">
+                                            ${user.isBanned ? 'Unban' : 'Ban'}
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function renderDrives() {
+            const container = document.getElementById('drivesList');
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    ${allDrives.slice(0, 10).map(drive => `
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-800">${drive.title}</h3>
+                                    <p class="text-sm text-gray-600">${drive.location}</p>
+                                    <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                                        <span>Marshal: ${drive.marshal.name}</span>
+                                        <span>Level: ${drive.requiredLevel}</span>
+                                        <span>Status: ${drive.status}</span>
+                                    </div>
+                                </div>
+                                <button onclick="deleteDrive('${drive._id}')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderVotes() {
+            const container = document.getElementById('votesList');
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    ${allVotes.slice(0, 10).map(vote => `
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-800">
+                                        ${vote.candidate.name} - ${vote.currentLevel} → ${vote.targetLevel}
+                                    </h3>
+                                    <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                                        <span>Status: ${vote.status}</span>
+                                        <span>Votes: ${vote.votes.length}</span>
+                                        <span>Date: ${new Date(vote.createdAt).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                                ${vote.status === 'closed' ? `
+                                    <button onclick="finalizeVote('${vote._id}')" class="bg-desert text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-opacity-90">
+                                        Finalize
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderContent() {
+            const forumContainer = document.getElementById('forumPostsList');
+            const marketContainer = document.getElementById('marketItemsList');
+
+            forumContainer.innerHTML = `
+                <div class="space-y-3">
+                    ${allForumPosts.slice(0, 5).map(post => `
+                        <div class="border border-gray-200 rounded-lg p-3">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-800">${post.title}</h4>
+                                    <p class="text-sm text-gray-600">by ${post.author.name}</p>
+                                </div>
+                                <button onclick="deleteForumPost('${post._id}')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            marketContainer.innerHTML = `
+                <div class="space-y-3">
+                    ${allMarketItems.slice(0, 5).map(item => `
+                        <div class="border border-gray-200 rounded-lg p-3">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-800">${item.title}</h4>
+                                    <p class="text-sm text-gray-600">by ${item.seller.name} • $${item.price}</p>
+                                </div>
+                                <button onclick="deleteMarketItem('${item._id}')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Remove active state from all tabs
+            document.querySelectorAll('[id$="Tab"]').forEach(tab => {
+                tab.classList.remove('border-desert', 'text-desert');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName + 'TabContent').classList.remove('hidden');
+            
+            // Activate selected tab
+            const activeTab = document.getElementById(tabName + 'Tab');
+            activeTab.classList.remove('border-transparent', 'text-gray-500');
+            activeTab.classList.add('border-desert', 'text-desert');
+        }
+
+        async function updateUserRole(userId, newRole) {
+            try {
+                const token = localStorage.getItem('token');
+                await axios.patch(`http://localhost:5000/api/admin/users/${userId}/role`, 
+                    { role: newRole },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                alert('User role updated successfully!');
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to update user role');
+            }
+        }
+
+        async function toggleUserBan(userId, isCurrentlyBanned) {
+            if (!confirm(`Are you sure you want to ${isCurrentlyBanned ? 'unban' : 'ban'} this user?`)) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                await axios.patch(`http://localhost:5000/api/admin/users/${userId}/ban`, {}, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                alert(`User ${isCurrentlyBanned ? 'unbanned' : 'banned'} successfully!`);
+                await loadAdminData();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to update user status');
+            }
+        }
+
+        async function deleteDrive(driveId) {
+            if (!confirm('Are you sure you want to delete this drive?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                await axios.delete(`http://localhost:5000/api/admin/drives/${driveId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                alert('Drive deleted successfully!');
+                await loadAdminData();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to delete drive');
+            }
+        }
+
+        async function finalizeVote(voteId) {
+            if (!confirm('Are you sure you want to finalize this vote?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                await axios.post(`http://localhost:5000/api/votes/${voteId}/decide`, 
+                    { decision: 'approve' },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+
+                alert('Vote finalized successfully!');
+                await loadAdminData();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to finalize vote');
+            }
+        }
+
+        async function deleteForumPost(postId) {
+            if (!confirm('Are you sure you want to delete this post?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                await axios.delete(`http://localhost:5000/api/forum/${postId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                alert('Post deleted successfully!');
+                await loadAdminData();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to delete post');
+            }
+        }
+
+        async function deleteMarketItem(itemId) {
+            if (!confirm('Are you sure you want to delete this item?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                await axios.delete(`http://localhost:5000/api/marketplace/${itemId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                alert('Item deleted successfully!');
+                await loadAdminData();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to delete item');
+            }
+        }
+    </script>
+</body>
+</html>

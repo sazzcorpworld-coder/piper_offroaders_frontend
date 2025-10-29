@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piper Offroaders Club</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .font-bebas { font-family: 'Bebas Neue', cursive; }
+        .bg-desert { background: linear-gradient(135deg, #d4a574 0%, #c19660 50%, #b8860b 100%); }
+        .text-desert { color: #8b6914; }
+        .border-desert { border-color: #d4a574; }
+        .hover-desert:hover { background-color: #c19660; }
+        .card-hover:hover { transform: translateY(-5px); transition: all 0.3s ease; }
+        .hero-bg {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23d4a574" width="1200" height="600"/><path fill="%23c19660" d="M0 300L50 325L100 300L150 275L200 300L250 325L300 300L350 275L400 300L450 325L500 300L550 275L600 300L650 325L700 300L750 275L800 300L850 325L900 300L950 275L1000 300L1050 325L1100 300L1150 275L1200 300V600H0V300Z"/></svg>');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-mountain text-2xl text-desert mr-2"></i>
+                        <span class="font-bebas text-2xl text-gray-800">PIPER OFFROADERS</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+                    </a>
+                    <a href="drives.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-route mr-1"></i> Drives
+                    </a>
+                    <a href="marketplace.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-store mr-1"></i> Marketplace
+                    </a>
+                    <a href="forum.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-comments mr-1"></i> Forum
+                    </a>
+                    <div id="userMenu" class="hidden">
+                        <a href="voting.html" id="votingLink" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium hidden">
+                            <i class="fas fa-vote-yea mr-1"></i> Voting
+                        </a>
+                        <a href="admin.html" id="adminLink" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium hidden">
+                            <i class="fas fa-cog mr-1"></i> Admin
+                        </a>
+                        <button onclick="logout()" class="bg-desert text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90">
+                            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                        </button>
+                    </div>
+                    <div id="authButtons" class="space-x-2">
+                        <a href="login.html" class="bg-desert text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90">
+                            Login
+                        </a>
+                        <a href="register.html" class="border border-desert text-desert px-4 py-2 rounded-md text-sm font-medium hover:bg-desert hover:text-white">
+                            Register
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg min-h-screen flex items-center justify-center">
+        <div class="text-center text-white">
+            <h1 class="font-bebas text-6xl md:text-8xl mb-6 tracking-wider">
+                PIPER OFFROADERS
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
+                Join the ultimate off-road driving community. Conquer terrain, build skills, and connect with fellow adventurers.
+            </p>
+            <div class="space-x-4">
+                <a href="register.html" class="bg-desert text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-opacity-90 transition-all">
+                    <i class="fas fa-user-plus mr-2"></i>Join the Club
+                </a>
+                <a href="drives.html" class="border-2 border-white text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-gray-800 transition-all">
+                    <i class="fas fa-route mr-2"></i>View Drives
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-bebas text-4xl md:text-5xl text-gray-800 mb-4">CLUB FEATURES</h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Everything you need for the ultimate off-road experience
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center p-6 rounded-lg bg-gray-50 card-hover">
+                    <div class="bg-desert text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-route text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Off-Road Drives</h3>
+                    <p class="text-gray-600">Join organized drives matching your skill level</p>
+                </div>
+
+                <div class="text-center p-6 rounded-lg bg-gray-50 card-hover">
+                    <div class="bg-desert text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-store text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Marketplace</h3>
+                    <p class="text-gray-600">Buy and sell off-road gear and vehicles</p>
+                </div>
+
+                <div class="text-center p-6 rounded-lg bg-gray-50 card-hover">
+                    <div class="bg-desert text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-comments text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Community Forum</h3>
+                    <p class="text-gray-600">Discuss techniques, share experiences</p>
+                </div>
+
+                <div class="text-center p-6 rounded-lg bg-gray-50 card-hover">
+                    <div class="bg-desert text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-medal text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Skill Progression</h3>
+                    <p class="text-gray-600">Advance through levels with marshal voting</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Levels Section -->
+    <section class="py-20 bg-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-bebas text-4xl md:text-5xl text-gray-800 mb-4">MEMBER LEVELS</h2>
+                <p class="text-xl text-gray-600">Progress through the ranks as you gain experience</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                        <h3 class="text-lg font-semibold ml-3">Newbie</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">New to off-roading. Join beginner drives and learn the basics.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                        <h3 class="text-lg font-semibold ml-3">Intermediate</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">Experienced driver. Tackle more challenging terrain.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                        <h3 class="text-lg font-semibold ml-3">Advanced</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">Expert level. Lead challenging expeditions.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                        <h3 class="text-lg font-semibold ml-3">Marshal</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">Club leader. Organize drives and vote on promotions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="flex items-center justify-center mb-4">
+                <i class="fas fa-mountain text-2xl text-desert mr-2"></i>
+                <span class="font-bebas text-2xl">PIPER OFFROADERS CLUB</span>
+            </div>
+            <p class="text-gray-400">© 2024 Piper Offroaders Club. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

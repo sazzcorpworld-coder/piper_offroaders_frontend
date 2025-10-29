@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drives - Piper Offroaders Club</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .font-bebas { font-family: 'Bebas Neue', cursive; }
+        .bg-desert { background: linear-gradient(135deg, #d4a574 0%, #c19660 50%, #b8860b 100%); }
+        .text-desert { color: #8b6914; }
+        .border-desert { border-color: #d4a574; }
+        .card-hover:hover { transform: translateY(-2px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-mountain text-2xl text-desert mr-2"></i>
+                        <span class="font-bebas text-2xl text-gray-800">PIPER OFFROADERS</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+                    </a>
+                    <a href="drives.html" class="text-desert px-3 py-2 rounded-md text-sm font-medium bg-desert bg-opacity-10">
+                        <i class="fas fa-route mr-1"></i> Drives
+                    </a>
+                    <a href="marketplace.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-store mr-1"></i> Marketplace
+                    </a>
+                    <a href="forum.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-comments mr-1"></i> Forum
+                    </a>
+                    <div id="userMenu" class="flex items-center space-x-2">
+                        <a href="profile.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-user mr-1"></i> Profile
+                        </a>
+                        <a href="voting.html" id="votingLink" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium hidden">
+                            <i class="fas fa-vote-yea mr-1"></i> Voting
+                        </a>
+                        <a href="admin.html" id="adminLink" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium hidden">
+                            <i class="fas fa-cog mr-1"></i> Admin
+                        </a>
+                        <button onclick="logout()" class="bg-desert text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90">
+                            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Off-Road Drives</h1>
+                    <p class="text-gray-600 mt-2">Join organized adventures matching your skill level</p>
+                </div>
+                <button id="createDriveBtn" onclick="showCreateDriveModal()" class="bg-desert text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-all hidden">
+                    <i class="fas fa-plus mr-2"></i>Create Drive
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="mb-6">
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">Filter by level:</label>
+                        <select id="levelFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option value="">All Levels</option>
+                            <option value="newbie">Newbie</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">Status:</label>
+                        <select id="statusFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option value="">All Drives</option>
+                            <option value="upcoming">Upcoming</option>
+                            <option value="ongoing">Ongoing</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+
+                    <button onclick="applyFilters()" class="bg-desert text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90">
+                        <i class="fas fa-filter mr-1"></i>Apply Filters
+                    </button>
+
+                    <button onclick="clearFilters()" class="bg-gray-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90">
+                        <i class="fas fa-times mr-1"></i>Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drives Grid -->
+        <div id="drivesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Drives will be loaded here -->
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-desert mb-4"></i>
+            <p class="text-gray-600">Loading drives...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-12 hidden">
+            <i class="fas fa-route text-4xl text-gray-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No drives found</h3>
+            <p class="text-gray-500">Try adjusting your filters or check back later.</p>
+        </div>
+    </div>
+
+    <!-- Create Drive Modal -->
+    <div id="createDriveModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-gray-800">Create New Drive</h2>
+                        <button onclick="hideCreateDriveModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <form id="createDriveForm" class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="driveTitle" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-tag mr-2"></i>Drive Title
+                            </label>
+                            <input 
+                                type="text" 
+                                id="driveTitle" 
+                                name="title" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                                placeholder="Enter drive title"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="driveLocation" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-map-marker-alt mr-2"></i>Location
+                            </label>
+                            <input 
+                                type="text" 
+                                id="driveLocation" 
+                                name="location" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                                placeholder="Enter drive location"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="driveDescription" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-align-left mr-2"></i>Description
+                        </label>
+                        <textarea 
+                            id="driveDescription" 
+                            name="description" 
+                            rows="4" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                            placeholder="Describe the drive, terrain, requirements..."
+                        ></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="requiredLevel" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-medal mr-2"></i>Required Level
+                            </label>
+                            <select 
+                                id="requiredLevel" 
+                                name="requiredLevel" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                            >
+                                <option value="">Select level</option>
+                                <option value="newbie">Newbie</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="dateTime" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-alt mr-2"></i>Date & Time
+                            </label>
+                            <input 
+                                type="datetime-local" 
+                                id="dateTime" 
+                                name="dateTime" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="maxParticipants" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-users mr-2"></i>Max Participants
+                            </label>
+                            <input 
+                                type="number" 
+                                id="maxParticipants" 
+                                name="maxParticipants" 
+                                min="1" 
+                                max="50" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                                placeholder="10"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="driveImage" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-image mr-2"></i>Drive Image
+                        </label>
+                        <input 
+                            type="file" 
+                            id="driveImage" 
+                            name="image" 
+                            accept="image/*" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                        >
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <button 
+                            type="button" 
+                            onclick="hideCreateDriveModal()" 
+                            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            class="px-6 py-3 bg-desert text-white rounded-lg font-semibold hover:bg-opacity-90 transition-all"
+                        >
+                            <i class="fas fa-plus mr-2"></i>Create Drive
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let allDrives = [];
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadUserData();
+            await loadDrives();
+        });
+
+        async function loadUserData() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('http://localhost:5000/api/auth/me', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                currentUser = response.data;
+
+                // Show create drive button for marshals and admins
+                if (currentUser.role === 'marshal' || currentUser.role === 'admin') {
+                    document.getElementById('createDriveBtn').classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        async function loadDrives() {
+            try {
+                document.getElementById('loadingState').classList.remove('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+
+                const token = localStorage.getItem('token');
+                const response = await axios.get('http://localhost:5000/api/drives', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                allDrives = response.data;
+                renderDrives(allDrives);
+
+                document.getElementById('loadingState').classList.add('hidden');
+
+            } catch (error) {
+                console.error('Error loading drives:', error);
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        }
+
+        function renderDrives(drives) {
+            const container = document.getElementById('drivesGrid');
+            const userId = currentUser?.id;
+
+            if (drives.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = drives.map(drive => {
+                const isParticipant = drive.participants.some(p => p.user._id === userId);
+                const isInWaitlist = drive.waitlist.some(w => w.user._id === userId);
+                const canJoin = !isParticipant && !isInWaitlist;
+                
+                const userLevelOrder = { 'newbie': 1, 'intermediate': 2, 'advanced': 3, 'marshal': 4, 'admin': 5 };
+                const requiredLevelOrder = { 'newbie': 1, 'intermediate': 2, 'advanced': 3 };
+                const hasRequiredLevel = userLevelOrder[currentUser?.role] >= requiredLevelOrder[drive.requiredLevel];
+
+                return `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover">
+                        ${drive.image ? `<img src="http://localhost:5000/${drive.image}" alt="${drive.title}" class="w-full h-48 object-cover">` : ''}
+                        
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-xl font-semibold text-gray-800">${drive.title}</h3>
+                                <span class="text-xs px-2 py-1 rounded-full ${getLevelColor(drive.requiredLevel)}">
+                                    ${drive.requiredLevel.charAt(0).toUpperCase() + drive.requiredLevel.slice(1)}
+                                </span>
+                            </div>
+                            
+                            <p class="text-gray-600 mb-3 line-clamp-2">${drive.description}</p>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-map-marker-alt mr-2"></i>
+                                    ${drive.location}
+                                </div>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-calendar-alt mr-2"></i>
+                                    ${new Date(drive.dateTime).toLocaleDateString()} at ${new Date(drive.dateTime).toLocaleTimeString()}
+                                </div>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-user-tie mr-2"></i>
+                                    Marshal: ${drive.marshal.name}
+                                </div>
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-users mr-2"></i>
+                                    ${drive.participants.length}/${drive.maxParticipants} participants
+                                </div>
+                            </div>
+
+                            <div class="flex space-x-2">
+                                ${canJoin ? `
+                                    ${hasRequiredLevel ? `
+                                        <button onclick="joinDrive('${drive._id}')" class="flex-1 bg-desert text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
+                                            <i class="fas fa-plus mr-1"></i>Join Drive
+                                        </button>
+                                    ` : `
+                                        <button disabled class="flex-1 bg-gray-300 text-gray-500 py-2 px-4 rounded-lg text-sm font-medium cursor-not-allowed">
+                                            <i class="fas fa-lock mr-1"></i>Level Required
+                                        </button>
+                                    `}
+                                ` : `
+                                    <button onclick="cancelParticipation('${drive._id}')" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
+                                        <i class="fas fa-times mr-1"></i>${isInWaitlist ? 'Leave Waitlist' : 'Cancel'}
+                                    </button>
+                                `}
+                                
+                                <button onclick="viewDriveDetails('${drive._id}')" class="bg-gray-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
+                                    <i class="fas fa-eye mr-1"></i>Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getLevelColor(level) {
+            switch(level) {
+                case 'newbie': return 'bg-green-100 text-green-800';
+                case 'intermediate': return 'bg-blue-100 text-blue-800';
+                case 'advanced': return 'bg-purple-100 text-purple-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        async function joinDrive(driveId) {
+            try {
+                const token = localStorage.getItem('token');
+                await axios.post(`http://localhost:5000/api/drives/${driveId}/join`, {}, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                alert('Successfully joined the drive!');
+                await loadDrives();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to join drive');
+            }
+        }
+
+        async function cancelParticipation(driveId) {
+            if (!confirm('Are you sure you want to cancel your participation?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                await axios.post(`http://localhost:5000/api/drives/${driveId}/cancel`, {}, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                alert('Successfully cancelled participation');
+                await loadDrives();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to cancel participation');
+            }
+        }
+
+        function viewDriveDetails(driveId) {
+            // For now, just show an alert. In a full implementation, this would open a modal
+            alert('Drive details view - to be implemented');
+        }
+
+        function applyFilters() {
+            const levelFilter = document.getElementById('levelFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filteredDrives = allDrives;
+
+            if (levelFilter) {
+                filteredDrives = filteredDrives.filter(drive => drive.requiredLevel === levelFilter);
+            }
+
+            if (statusFilter) {
+                filteredDrives = filteredDrives.filter(drive => drive.status === statusFilter);
+            }
+
+            renderDrives(filteredDrives);
+        }
+
+        function clearFilters() {
+            document.getElementById('levelFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            renderDrives(allDrives);
+        }
+
+        function showCreateDriveModal() {
+            document.getElementById('createDriveModal').classList.remove('hidden');
+        }
+
+        function hideCreateDriveModal() {
+            document.getElementById('createDriveModal').classList.add('hidden');
+            document.getElementById('createDriveForm').reset();
+        }
+
+        // Handle create drive form submission
+        document.getElementById('createDriveForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('title', document.getElementById('driveTitle').value);
+            formData.append('description', document.getElementById('driveDescription').value);
+            formData.append('location', document.getElementById('driveLocation').value);
+            formData.append('requiredLevel', document.getElementById('requiredLevel').value);
+            formData.append('dateTime', document.getElementById('dateTime').value);
+            formData.append('maxParticipants', document.getElementById('maxParticipants').value);
+            
+            const imageFile = document.getElementById('driveImage').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                await axios.post('http://localhost:5000/api/drives', formData, {
+                    headers: { 
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                alert('Drive created successfully!');
+                hideCreateDriveModal();
+                await loadDrives();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to create drive');
+            }
+        });
+    </script>
+</body>
+</html>

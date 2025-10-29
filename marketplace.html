@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace - Piper Offroaders Club</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .font-bebas { font-family: 'Bebas Neue', cursive; }
+        .bg-desert { background: linear-gradient(135deg, #d4a574 0%, #c19660 50%, #b8860b 100%); }
+        .text-desert { color: #8b6914; }
+        .border-desert { border-color: #d4a574; }
+        .card-hover:hover { transform: translateY(-2px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-mountain text-2xl text-desert mr-2"></i>
+                        <span class="font-bebas text-2xl text-gray-800">PIPER OFFROADERS</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+                    </a>
+                    <a href="drives.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-route mr-1"></i> Drives
+                    </a>
+                    <a href="marketplace.html" class="text-desert px-3 py-2 rounded-md text-sm font-medium bg-desert bg-opacity-10">
+                        <i class="fas fa-store mr-1"></i> Marketplace
+                    </a>
+                    <a href="forum.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-comments mr-1"></i> Forum
+                    </a>
+                    <div id="userMenu" class="flex items-center space-x-2">
+                        <a href="profile.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-user mr-1"></i> Profile
+                        </a>
+                        <a href="voting.html" id="votingLink" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium hidden">
+                            <i class="fas fa-vote-yea mr-1"></i> Voting
+                        </a>
+                        <a href="admin.html" id="adminLink" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium hidden">
+                            <i class="fas fa-cog mr-1"></i> Admin
+                        </a>
+                        <button onclick="logout()" class="bg-desert text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90">
+                            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Marketplace</h1>
+                    <p class="text-gray-600 mt-2">Buy and sell off-road gear, parts, and vehicles</p>
+                </div>
+                <button onclick="showCreateItemModal()" class="bg-desert text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-all">
+                    <i class="fas fa-plus mr-2"></i>Sell Item
+                </button>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="mb-6">
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div class="flex-1 min-w-64">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input 
+                                type="text" 
+                                id="searchInput" 
+                                placeholder="Search items..." 
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">Category:</label>
+                        <select id="categoryFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option value="">All Categories</option>
+                            <option value="parts">Parts</option>
+                            <option value="accessories">Accessories</option>
+                            <option value="vehicles">Vehicles</option>
+                            <option value="gear">Gear</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm font-medium text-gray-700">Status:</label>
+                        <select id="statusFilter" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option value="available">Available</option>
+                            <option value="sold">Sold</option>
+                            <option value="">All Items</option>
+                        </select>
+                    </div>
+
+                    <button onclick="applyFilters()" class="bg-desert text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90">
+                        <i class="fas fa-filter mr-1"></i>Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Grid -->
+        <div id="itemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Items will be loaded here -->
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-desert mb-4"></i>
+            <p class="text-gray-600">Loading items...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-12 hidden">
+            <i class="fas fa-store text-4xl text-gray-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">No items found</h3>
+            <p class="text-gray-500">Try adjusting your search or filters.</p>
+        </div>
+    </div>
+
+    <!-- Create Item Modal -->
+    <div id="createItemModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-gray-800">Sell Item</h2>
+                        <button onclick="hideCreateItemModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <form id="createItemForm" class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="itemTitle" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-tag mr-2"></i>Item Title
+                            </label>
+                            <input 
+                                type="text" 
+                                id="itemTitle" 
+                                name="title" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                                placeholder="Enter item title"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="itemCategory" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-folder mr-2"></i>Category
+                            </label>
+                            <select 
+                                id="itemCategory" 
+                                name="category" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                            >
+                                <option value="">Select category</option>
+                                <option value="parts">Parts</option>
+                                <option value="accessories">Accessories</option>
+                                <option value="vehicles">Vehicles</option>
+                                <option value="gear">Gear</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="itemDescription" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-align-left mr-2"></i>Description
+                        </label>
+                        <textarea 
+                            id="itemDescription" 
+                            name="description" 
+                            rows="4" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                            placeholder="Describe the item, condition, specifications..."
+                        ></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="itemPrice" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-dollar-sign mr-2"></i>Price ($)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="itemPrice" 
+                                name="price" 
+                                min="0" 
+                                step="0.01" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                                placeholder="0.00"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="contactMethod" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-phone mr-2"></i>Contact Method
+                            </label>
+                            <input 
+                                type="text" 
+                                id="contactMethod" 
+                                name="contactMethod" 
+                                required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                                placeholder="Phone, email, or preferred contact method"
+                            >
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="itemImages" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-images mr-2"></i>Item Images (up to 5)
+                        </label>
+                        <input 
+                            type="file" 
+                            id="itemImages" 
+                            name="images" 
+                            multiple 
+                            accept="image/*" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                        >
+                        <p class="text-sm text-gray-500 mt-1">You can select multiple images</p>
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <button 
+                            type="button" 
+                            onclick="hideCreateItemModal()" 
+                            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            class="px-6 py-3 bg-desert text-white rounded-lg font-semibold hover:bg-opacity-90 transition-all"
+                        >
+                            <i class="fas fa-plus mr-2"></i>List Item
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let allItems = [];
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadItems();
+        });
+
+        async function loadItems() {
+            try {
+                document.getElementById('loadingState').classList.remove('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+
+                const token = localStorage.getItem('token');
+                const response = await axios.get('http://localhost:5000/api/marketplace', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                allItems = response.data;
+                renderItems(allItems);
+
+                document.getElementById('loadingState').classList.add('hidden');
+
+            } catch (error) {
+                console.error('Error loading items:', error);
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('emptyState').classList.remove('hidden');
+            }
+        }
+
+        function renderItems(items) {
+            const container = document.getElementById('itemsGrid');
+            const userId = JSON.parse(localStorage.getItem('user'))?.id;
+
+            if (items.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = items.map(item => {
+                const isOwner = item.seller._id === userId;
+                const mainImage = item.images && item.images.length > 0 ? item.images[0] : null;
+
+                return `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden card-hover">
+                        ${mainImage ? 
+                            `<img src="http://localhost:5000/${mainImage}" alt="${item.title}" class="w-full h-48 object-cover">` :
+                            `<div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-image text-4xl text-gray-400"></i>
+                            </div>`
+                        }
+                        
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-lg font-semibold text-gray-800 truncate">${item.title}</h3>
+                                <span class="text-xs px-2 py-1 rounded-full ${getCategoryColor(item.category)}">
+                                    ${item.category.charAt(0).toUpperCase() + item.category.slice(1)}
+                                </span>
+                            </div>
+                            
+                            <p class="text-gray-600 text-sm mb-3 line-clamp-2">${item.description}</p>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-2xl font-bold text-desert">$${item.price.toFixed(2)}</span>
+                                    <span class="text-xs px-2 py-1 rounded-full ${item.status === 'available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                        ${item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                                    </span>
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    Seller: ${item.seller.name}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    Contact: ${item.contactMethod}
+                                </div>
+                            </div>
+
+                            <div class="flex space-x-2">
+                                ${item.status === 'available' ? `
+                                    ${isOwner ? `
+                                        <button onclick="markAsSold('${item._id}')" class="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
+                                            <i class="fas fa-check mr-1"></i>Mark Sold
+                                        </button>
+                                        <button onclick="editItem('${item._id}')" class="bg-blue-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
+                                            <i class="fas fa-edit mr-1"></i>Edit
+                                        </button>
+                                        <button onclick="deleteItem('${item._id}')" class="bg-red-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
+                                            <i class="fas fa-trash mr-1"></i>Delete
+                                        </button>
+                                    ` : `
+                                        <button onclick="contactSeller('${item._id}')" class="flex-1 bg-desert text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
+                                            <i class="fas fa-envelope mr-1"></i>Contact Seller
+                                        </button>
+                                        <button onclick="viewItemDetails('${item._id}')" class="bg-gray-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
+                                            <i class="fas fa-eye mr-1"></i>Details
+                                        </button>
+                                    `}
+                                ` : `
+                                    <div class="flex-1 text-center text-gray-500 py-2">
+                                        <i class="fas fa-check mr-1"></i>Sold
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getCategoryColor(category) {
+            switch(category) {
+                case 'parts': return 'bg-blue-100 text-blue-800';
+                case 'accessories': return 'bg-green-100 text-green-800';
+                case 'vehicles': return 'bg-purple-100 text-purple-800';
+                case 'gear': return 'bg-yellow-100 text-yellow-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        async function markAsSold(itemId) {
+            if (!confirm('Are you sure you want to mark this item as sold?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                await axios.patch(`http://localhost:5000/api/marketplace/${itemId}/sold`, {}, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                alert('Item marked as sold!');
+                await loadItems();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to mark item as sold');
+            }
+        }
+
+        async function deleteItem(itemId) {
+            if (!confirm('Are you sure you want to delete this item?')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                await axios.delete(`http://localhost:5000/api/marketplace/${itemId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                alert('Item deleted successfully!');
+                await loadItems();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to delete item');
+            }
+        }
+
+        function contactSeller(itemId) {
+            alert('Contact seller feature - to be implemented');
+        }
+
+        function editItem(itemId) {
+            alert('Edit item feature - to be implemented');
+        }
+
+        function viewItemDetails(itemId) {
+            alert('Item details view - to be implemented');
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filteredItems = allItems;
+
+            if (searchTerm) {
+                filteredItems = filteredItems.filter(item => 
+                    item.title.toLowerCase().includes(searchTerm) || 
+                    item.description.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (categoryFilter) {
+                filteredItems = filteredItems.filter(item => item.category === categoryFilter);
+            }
+
+            if (statusFilter) {
+                filteredItems = filteredItems.filter(item => item.status === statusFilter);
+            }
+
+            renderItems(filteredItems);
+        }
+
+        function showCreateItemModal() {
+            document.getElementById('createItemModal').classList.remove('hidden');
+        }
+
+        function hideCreateItemModal() {
+            document.getElementById('createItemModal').classList.add('hidden');
+            document.getElementById('createItemForm').reset();
+        }
+
+        // Handle create item form submission
+        document.getElementById('createItemForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('title', document.getElementById('itemTitle').value);
+            formData.append('description', document.getElementById('itemDescription').value);
+            formData.append('price', document.getElementById('itemPrice').value);
+            formData.append('contactMethod', document.getElementById('contactMethod').value);
+            formData.append('category', document.getElementById('itemCategory').value);
+            
+            const imageFiles = document.getElementById('itemImages').files;
+            for (let i = 0; i < imageFiles.length; i++) {
+                formData.append('images', imageFiles[i]);
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                await axios.post('http://localhost:5000/api/marketplace', formData, {
+                    headers: { 
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+
+                alert('Item listed successfully!');
+                hideCreateItemModal();
+                await loadItems();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to list item');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marshal Voting - Piper Offroaders Club</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .font-bebas { font-family: 'Bebas Neue', cursive; }
+        .bg-desert { background: linear-gradient(135deg, #d4a574 0%, #c19660 50%, #b8860b 100%); }
+        .text-desert { color: #8b6914; }
+        .border-desert { border-color: #d4a574; }
+        .card-hover:hover { transform: translateY(-2px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-mountain text-2xl text-desert mr-2"></i>
+                        <span class="font-bebas text-2xl text-gray-800">PIPER OFFROADERS</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
+                    </a>
+                    <a href="drives.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-route mr-1"></i> Drives
+                    </a>
+                    <a href="marketplace.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-store mr-1"></i> Marketplace
+                    </a>
+                    <a href="forum.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-comments mr-1"></i> Forum
+                    </a>
+                    <div id="userMenu" class="flex items-center space-x-2">
+                        <a href="profile.html" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-user mr-1"></i> Profile
+                        </a>
+                        <a href="voting.html" class="text-desert px-3 py-2 rounded-md text-sm font-medium bg-desert bg-opacity-10">
+                            <i class="fas fa-vote-yea mr-1"></i> Voting
+                        </a>
+                        <a href="admin.html" id="adminLink" class="text-gray-700 hover:text-desert px-3 py-2 rounded-md text-sm font-medium hidden">
+                            <i class="fas fa-cog mr-1"></i> Admin
+                        </a>
+                        <button onclick="logout()" class="bg-desert text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-opacity-90">
+                            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                    <i class="fas fa-vote-yea text-desert mr-3"></i>
+                    Marshal Voting Panel
+                </h1>
+                <p class="text-gray-600">Review and vote on member promotion requests</p>
+                <div class="mt-4 flex items-center space-x-4">
+                    <div class="text-sm text-gray-500">Your role:</div>
+                    <span class="inline-block bg-desert bg-opacity-20 text-desert px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-medal mr-1"></i>Marshal
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Votes -->
+        <div class="mb-8">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-clock text-desert mr-2"></i>
+                        Active Votes
+                        <span id="activeVotesCount" class="ml-2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">0</span>
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div id="activeVotesList">
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-vote-yea text-4xl mb-4"></i>
+                            <p>No active votes at the moment</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Your Promotion Status -->
+        <div class="mb-8">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-user-check text-desert mr-2"></i>
+                        Your Promotion Status
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div id="promotionStatus">
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-user text-4xl mb-4"></i>
+                            <p>No promotion votes for you</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Initiate Vote Button (for marshals and admins) -->
+        <div class="mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800">Initiate Promotion Vote</h3>
+                        <p class="text-gray-600 text-sm">Start a vote to promote a member to the next level</p>
+                    </div>
+                    <button onclick="showInitiateVoteModal()" class="bg-desert text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-all">
+                        <i class="fas fa-plus mr-2"></i>Initiate Vote
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Vote History -->
+        <div class="mb-8">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-history text-desert mr-2"></i>
+                        Recent Vote History
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div id="voteHistory">
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-history text-4xl mb-4"></i>
+                            <p>No vote history available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Initiate Vote Modal -->
+    <div id="initiateVoteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-2xl max-w-md w-full">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-bold text-gray-800">Initiate Promotion Vote</h2>
+                        <button onclick="hideInitiateVoteModal()" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <form id="initiateVoteForm" class="p-6 space-y-6">
+                    <div>
+                        <label for="candidateId" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2"></i>Select Candidate
+                        </label>
+                        <select 
+                            id="candidateId" 
+                            name="candidateId" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                        >
+                            <option value="">Select a member</option>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="targetLevel" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-medal mr-2"></i>Target Level
+                        </label>
+                        <select 
+                            id="targetLevel" 
+                            name="targetLevel" 
+                            required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-desert focus:border-transparent"
+                        >
+                            <option value="">Select target level</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                            <option value="marshal">Marshal</option>
+                        </select>
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <button 
+                            type="button" 
+                            onclick="hideInitiateVoteModal()" 
+                            class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            class="px-6 py-3 bg-desert text-white rounded-lg font-semibold hover:bg-opacity-90 transition-all"
+                        >
+                            <i class="fas fa-vote-yea mr-2"></i>Initiate Vote
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let activeVotes = [];
+        let userVotes = [];
+        let allUsers = [];
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadVotingData();
+        });
+
+        async function loadVotingData() {
+            try {
+                const token = localStorage.getItem('token');
+                
+                // Load active votes
+                const activeVotesResponse = await axios.get('http://localhost:5000/api/votes/open', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                activeVotes = activeVotesResponse.data;
+
+                // Load user's promotion votes
+                const userVotesResponse = await axios.get('http://localhost:5000/api/votes/my-votes', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                userVotes = userVotesResponse.data;
+
+                // Load all users for the initiate vote dropdown
+                const usersResponse = await axios.get('http://localhost:5000/api/admin/users', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                allUsers = usersResponse.data;
+
+                renderActiveVotes();
+                renderPromotionStatus();
+                renderVoteHistory();
+                populateCandidateDropdown();
+
+            } catch (error) {
+                console.error('Error loading voting data:', error);
+            }
+        }
+
+        function renderActiveVotes() {
+            const container = document.getElementById('activeVotesList');
+            const userId = JSON.parse(localStorage.getItem('user')).id;
+
+            if (activeVotes.length === 0) {
+                document.getElementById('activeVotesCount').textContent = '0';
+                return;
+            }
+
+            document.getElementById('activeVotesCount').textContent = activeVotes.length;
+
+            container.innerHTML = activeVotes.map(vote => {
+                const hasVoted = vote.votes.some(v => v.marshal._id === userId);
+                const approveCount = vote.votes.filter(v => v.decision === 'approve').length;
+                const rejectCount = vote.votes.filter(v => v.decision === 'reject').length;
+                const totalMarshals = 5; // This should be fetched from the server
+                const timeLeft = Math.max(0, Math.ceil((new Date(vote.endDate) - new Date()) / (1000 * 60 * 60 * 24)));
+
+                return `
+                    <div class="border border-gray-200 rounded-lg p-4 mb-4 bg-white">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">
+                                    ${vote.candidate.name} - ${vote.currentLevel} → ${vote.targetLevel}
+                                </h3>
+                                <p class="text-sm text-gray-600">
+                                    Initiated by ${vote.initiatedBy.name} • ${timeLeft} days left
+                                </p>
+                            </div>
+                            <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                                ${vote.status.charAt(0).toUpperCase() + vote.status.slice(1)}
+                            </span>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-green-600">
+                                    <i class="fas fa-thumbs-up mr-1"></i>${approveCount} Approve
+                                </span>
+                                <span class="text-red-600">
+                                    <i class="fas fa-thumbs-down mr-1"></i>${rejectCount} Reject
+                                </span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: ${(approveCount / totalMarshals) * 100}%"></div>
+                            </div>
+                        </div>
+
+                        ${hasVoted ? `
+                            <div class="text-center text-green-600 font-medium">
+                                <i class="fas fa-check mr-1"></i>You have voted
+                            </div>
+                        ` : `
+                            <div class="flex space-x-2">
+                                <button onclick="castVote('${vote._id}', 'approve')" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
+                                    <i class="fas fa-thumbs-up mr-1"></i>Approve
+                                </button>
+                                <button onclick="castVote('${vote._id}', 'reject')" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-opacity-90 transition-all">
+                                    <i class="fas fa-thumbs-down mr-1"></i>Reject
+                                </button>
+                            </div>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPromotionStatus() {
+            const container = document.getElementById('promotionStatus');
+
+            if (userVotes.length === 0) {
+                return;
+            }
+
+            container.innerHTML = userVotes.map(vote => {
+                const statusColor = vote.status === 'approved' ? 'text-green-600' : 
+                                  vote.status === 'rejected' ? 'text-red-600' : 'text-blue-600';
+                const statusIcon = vote.status === 'approved' ? 'fas fa-check-circle' : 
+                                 vote.status === 'rejected' ? 'fas fa-times-circle' : 'fas fa-clock';
+
+                return `
+                    <div class="border border-gray-200 rounded-lg p-4 mb-4 bg-white">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-lg font-semibold text-gray-800">
+                                ${vote.currentLevel} → ${vote.targetLevel}
+                            </h3>
+                            <span class="text-xs px-2 py-1 rounded-full ${getStatusColor(vote.status)}">
+                                ${vote.status.charAt(0).toUpperCase() + vote.status.slice(1)}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-2">
+                            ${vote.finalDecision ? `Final decision: ${vote.finalDecision}` : 'Vote in progress'}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            ${new Date(vote.createdAt).toLocaleDateString()}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderVoteHistory() {
+            const container = document.getElementById('voteHistory');
+            const allVotes = [...activeVotes, ...userVotes];
+
+            if (allVotes.length === 0) {
+                return;
+            }
+
+            container.innerHTML = allVotes.slice(0, 5).map(vote => {
+                return `
+                    <div class="border border-gray-200 rounded-lg p-4 mb-4 bg-white">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">
+                                    ${vote.candidate.name} - ${vote.currentLevel} → ${vote.targetLevel}
+                                </h3>
+                                <p class="text-sm text-gray-600">
+                                    Status: ${vote.status} • ${vote.votes.length} votes cast
+                                </p>
+                            </div>
+                            <span class="text-xs px-2 py-1 rounded-full ${getStatusColor(vote.status)}">
+                                ${vote.status.charAt(0).toUpperCase() + vote.status.slice(1)}
+                            </span>
+                        </div>
+                        ${vote.finalDecision ? `
+                            <div class="text-sm text-gray-600">
+                                Final decision: ${vote.finalDecision}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'open': return 'bg-blue-100 text-blue-800';
+                case 'closed': return 'bg-gray-100 text-gray-800';
+                case 'approved': return 'bg-green-100 text-green-800';
+                case 'rejected': return 'bg-red-100 text-red-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        async function castVote(voteId, decision) {
+            try {
+                const token = localStorage.getItem('token');
+                await axios.post(`http://localhost:5000/api/votes/${voteId}/vote`, 
+                    { decision },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+
+                alert('Vote cast successfully!');
+                await loadVotingData();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to cast vote');
+            }
+        }
+
+        function populateCandidateDropdown() {
+            const select = document.getElementById('candidateId');
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            
+            // Filter out current user and only show users who can be promoted
+            const candidates = allUsers.filter(user => 
+                user._id !== currentUser.id && 
+                ['newbie', 'intermediate', 'advanced'].includes(user.role)
+            );
+
+            select.innerHTML = '<option value="">Select a member</option>' +
+                candidates.map(user => `<option value="${user._id}">${user.name} (${user.role})</option>`).join('');
+        }
+
+        function showInitiateVoteModal() {
+            document.getElementById('initiateVoteModal').classList.remove('hidden');
+        }
+
+        function hideInitiateVoteModal() {
+            document.getElementById('initiateVoteModal').classList.add('hidden');
+            document.getElementById('initiateVoteForm').reset();
+        }
+
+        // Handle initiate vote form submission
+        document.getElementById('initiateVoteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                candidateId: document.getElementById('candidateId').value,
+                targetLevel: document.getElementById('targetLevel').value
+            };
+
+            try {
+                const token = localStorage.getItem('token');
+                await axios.post('http://localhost:5000/api/votes/initiate', formData, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                alert('Vote initiated successfully!');
+                hideInitiateVoteModal();
+                await loadVotingData();
+            } catch (error) {
+                alert(error.response?.data?.message || 'Failed to initiate vote');
+            }
+        });
+    </script>
+</body>
+</html>
